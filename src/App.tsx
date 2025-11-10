@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AppLayout } from "./components/Layout/AppLayout";
+import { AppLayout, useRole } from "./components/Layout/AppLayout";
 import AdminDashboard from "./pages/AdminDashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import Expenses from "./pages/Expenses";
@@ -11,6 +11,11 @@ import Requests from "./pages/Requests";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
+
+function Dashboard() {
+  const { userRole } = useRole();
+  return userRole === "admin" ? <AdminDashboard /> : <EmployeeDashboard />;
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -20,7 +25,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route element={<AppLayout />}>
-            <Route path="/" element={<AdminDashboard />} />
+            <Route path="/" element={<Dashboard />} />
             <Route path="/expenses" element={<Expenses />} />
             <Route path="/requests" element={<Requests />} />
             <Route path="/transactions" element={<div>Transactions Page</div>} />

@@ -1,4 +1,4 @@
-import { Bell, Search } from "lucide-react";
+import { Bell, Search, UserCog, Users } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,8 +11,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { useRole } from "./AppLayout";
 
 export function TopBar() {
+  const { userRole, setUserRole } = useRole();
+
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-card px-6">
       <SidebarTrigger />
@@ -27,6 +31,19 @@ export function TopBar() {
         </div>
       </div>
 
+      <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-muted">
+        <Badge variant="outline" className="capitalize">{userRole}</Badge>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setUserRole(userRole === "admin" ? "employee" : "admin")}
+          className="gap-2"
+        >
+          {userRole === "admin" ? <Users className="h-4 w-4" /> : <UserCog className="h-4 w-4" />}
+          Switch to {userRole === "admin" ? "Employee" : "Admin"}
+        </Button>
+      </div>
+
       <Button variant="ghost" size="icon" className="relative">
         <Bell className="h-5 w-5" />
         <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-destructive" />
@@ -37,7 +54,7 @@ export function TopBar() {
           <Button variant="ghost" className="relative h-10 w-10 rounded-full">
             <Avatar>
               <AvatarFallback className="bg-primary text-primary-foreground">
-                AD
+                {userRole === "admin" ? "AD" : "EM"}
               </AvatarFallback>
             </Avatar>
           </Button>
