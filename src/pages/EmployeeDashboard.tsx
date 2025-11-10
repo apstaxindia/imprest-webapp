@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { DollarSign, Clock, CheckCircle, TrendingUp } from "lucide-react";
 import { StatCard } from "@/components/Dashboard/StatCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus } from "lucide-react";
+import { AddExpenseDialog } from "@/components/Expenses/AddExpenseDialog";
 
 const recentActivity = [
   {
@@ -37,6 +39,8 @@ const recentActivity = [
 ];
 
 export default function EmployeeDashboard() {
+  const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -44,11 +48,16 @@ export default function EmployeeDashboard() {
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">Welcome back, Employee!</p>
         </div>
-        <Button className="gap-2">
+        <Button className="gap-2" onClick={() => setIsAddExpenseOpen(true)}>
           <Plus className="h-4 w-4" />
           Add Expense
         </Button>
       </div>
+
+      <AddExpenseDialog 
+        open={isAddExpenseOpen} 
+        onOpenChange={setIsAddExpenseOpen} 
+      />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
