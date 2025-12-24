@@ -1,4 +1,4 @@
-import { Bell, Search, UserCog, Users } from "lucide-react";
+import { Bell, LogIn, Search, UserCog, Users } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,9 +13,11 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useRole } from "./AppLayout";
+import { useNavigate } from "react-router-dom";
 
 export function TopBar() {
   const { userRole, setUserRole } = useRole();
+  const navigate = useNavigate();
 
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-card px-6">
@@ -43,6 +45,16 @@ export function TopBar() {
           Switch to {userRole === "admin" ? "Employee" : "Admin"}
         </Button>
       </div>
+
+      <Button 
+        variant="outline" 
+        size="sm" 
+        className="gap-2"
+        onClick={() => navigate("/auth")}
+      >
+        <LogIn className="h-4 w-4" />
+        Login
+      </Button>
 
       <Button variant="ghost" size="icon" className="relative">
         <Bell className="h-5 w-5" />
