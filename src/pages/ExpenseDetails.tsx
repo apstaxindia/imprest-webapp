@@ -1,8 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import {
   ArrowLeft,
   Calendar,
@@ -12,6 +11,12 @@ import {
   Receipt,
   Edit,
   Trash2,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+  Download,
+  ImageIcon,
 } from "lucide-react";
 
 interface Expense {
@@ -78,6 +83,43 @@ const expenses: Expense[] = [
   },
 ];
 
+const getStatusConfig = (status: string) => {
+  switch (status) {
+    case "approved":
+      return {
+        icon: CheckCircle2,
+        color: "text-emerald-600",
+        bg: "bg-emerald-50",
+        border: "border-emerald-200",
+        badge: "bg-emerald-100 text-emerald-700 border-emerald-200",
+      };
+    case "pending":
+      return {
+        icon: Clock,
+        color: "text-amber-600",
+        bg: "bg-amber-50",
+        border: "border-amber-200",
+        badge: "bg-amber-100 text-amber-700 border-amber-200",
+      };
+    case "rejected":
+      return {
+        icon: XCircle,
+        color: "text-red-600",
+        bg: "bg-red-50",
+        border: "border-red-200",
+        badge: "bg-red-100 text-red-700 border-red-200",
+      };
+    default:
+      return {
+        icon: AlertCircle,
+        color: "text-muted-foreground",
+        bg: "bg-muted",
+        border: "border-border",
+        badge: "bg-muted text-muted-foreground",
+      };
+  }
+};
+
 export default function ExpenseDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -87,11 +129,14 @@ export default function ExpenseDetails() {
   if (!expense) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center">
+          <AlertCircle className="h-8 w-8 text-muted-foreground" />
+        </div>
         <h2 className="text-2xl font-semibold">Expense Not Found</h2>
         <p className="text-muted-foreground">
           The expense you're looking for doesn't exist.
         </p>
-        <Button onClick={() => navigate("/expenses")}>
+        <Button onClick={() => navigate("/expenses")} className="mt-4">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Expenses
         </Button>
@@ -99,180 +144,250 @@ export default function ExpenseDetails() {
     );
   }
 
+  const statusConfig = getStatusConfig(expense.status);
+  const StatusIcon = statusConfig.icon;
+
   return (
-    <div className="space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/expenses")}>
-            <ArrowLeft className="h-5 w-5" />
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => navigate("/expenses")}
+            className="shrink-0"
+          >
+            <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Expense Details</h1>
-            <p className="text-muted-foreground">View expense information</p>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold tracking-tight">{expense.title}</h1>
+              <Badge
+                variant="outline"
+                className={`capitalize ${statusConfig.badge}`}
+              >
+                <StatusIcon className="h-3 w-3 mr-1" />
+                {expense.status}
+              </Badge>
+            </div>
+            <p className="text-muted-foreground text-sm mt-1">
+              Expense #{expense.id} • Created on{" "}
+              {new Date(expense.date).toLocaleDateString("en-IN", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" className="gap-2">
+        <div className="flex gap-2 ml-14 sm:ml-0">
+          <Button variant="outline" size="sm" className="gap-2">
             <Edit className="h-4 w-4" />
-            Edit
+            <span className="hidden sm:inline">Edit</span>
           </Button>
-          <Button variant="destructive" className="gap-2">
+          <Button variant="outline" size="sm" className="gap-2 text-destructive hover:text-destructive">
             <Trash2 className="h-4 w-4" />
-            Delete
+            <span className="hidden sm:inline">Delete</span>
           </Button>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="grid gap-6 md:grid-cols-3">
-        {/* Left Column - Main Details */}
-        <Card className="md:col-span-2">
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                  <Receipt className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <CardTitle className="text-xl">{expense.title}</CardTitle>
-                  <p className="text-sm text-muted-foreground">ID: #{expense.id}</p>
-                </div>
-              </div>
-              <Badge
-                variant={
-                  expense.status === "approved"
-                    ? "default"
-                    : expense.status === "pending"
-                    ? "secondary"
-                    : "destructive"
-                }
-                className={
-                  expense.status === "approved"
-                    ? "bg-success hover:bg-success/80"
-                    : expense.status === "pending"
-                    ? "bg-warning hover:bg-warning/80"
-                    : ""
-                }
-              >
-                {expense.status}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Amount */}
-            <div className="p-4 rounded-lg bg-muted/50 text-center">
-              <p className="text-sm text-muted-foreground mb-1">Total Amount</p>
-              <p className="text-4xl font-bold text-primary">
+      {/* Amount Card */}
+      <Card className="overflow-hidden border-0 shadow-lg">
+        <div className="bg-gradient-to-r from-primary to-primary/80 p-6 sm:p-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <p className="text-primary-foreground/80 text-sm font-medium mb-1">
+                Total Amount
+              </p>
+              <p className="text-4xl sm:text-5xl font-bold text-primary-foreground">
                 ₹{expense.amount.toLocaleString()}
               </p>
             </div>
+            <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${statusConfig.bg} ${statusConfig.border} border`}>
+              <StatusIcon className={`h-5 w-5 ${statusConfig.color}`} />
+              <span className={`font-medium capitalize ${statusConfig.color}`}>
+                {expense.status}
+              </span>
+            </div>
+          </div>
+        </div>
+      </Card>
 
-            <Separator />
-
-            {/* Details Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <Tag className="h-5 w-5 text-primary" />
+      {/* Details Grid */}
+      <div className="grid gap-6 md:grid-cols-3">
+        {/* Left Column - Details */}
+        <div className="md:col-span-2 space-y-6">
+          {/* Info Cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            <Card className="p-4 hover:shadow-md transition-shadow">
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
+                  <Tag className="h-5 w-5 text-blue-600" />
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Category</p>
-                  <p className="font-medium">{expense.category}</p>
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+                    Category
+                  </p>
+                  <p className="font-semibold mt-0.5 truncate">{expense.category}</p>
                 </div>
               </div>
+            </Card>
 
-              <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <CreditCard className="h-5 w-5 text-primary" />
+            <Card className="p-4 hover:shadow-md transition-shadow">
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 rounded-xl bg-purple-100 flex items-center justify-center shrink-0">
+                  <CreditCard className="h-5 w-5 text-purple-600" />
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Payment Mode</p>
-                  <p className="font-medium">{expense.mode}</p>
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+                    Payment
+                  </p>
+                  <p className="font-semibold mt-0.5 truncate">{expense.mode}</p>
                 </div>
               </div>
+            </Card>
 
-              <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50 sm:col-span-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <Calendar className="h-5 w-5 text-primary" />
+            <Card className="p-4 hover:shadow-md transition-shadow col-span-2 sm:col-span-1">
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 rounded-xl bg-orange-100 flex items-center justify-center shrink-0">
+                  <Calendar className="h-5 w-5 text-orange-600" />
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Date</p>
-                  <p className="font-medium">
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+                    Date
+                  </p>
+                  <p className="font-semibold mt-0.5">
                     {new Date(expense.date).toLocaleDateString("en-IN", {
-                      weekday: "long",
-                      year: "numeric",
-                      month: "long",
+                      month: "short",
                       day: "numeric",
+                      year: "numeric",
                     })}
                   </p>
                 </div>
               </div>
-            </div>
+            </Card>
+          </div>
 
-            {/* Notes Section */}
-            {expense.notes && (
-              <>
-                <Separator />
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm font-medium">
-                    <FileText className="h-4 w-4" />
-                    Notes
-                  </div>
-                  <p className="text-sm text-muted-foreground bg-muted/50 p-4 rounded-lg">
-                    {expense.notes}
-                  </p>
+          {/* Notes */}
+          {expense.notes && (
+            <Card className="overflow-hidden">
+              <div className="p-4 border-b bg-muted/30">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                  <h3 className="font-semibold text-sm">Notes & Description</h3>
                 </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
+              </div>
+              <CardContent className="p-4">
+                <p className="text-muted-foreground leading-relaxed">
+                  {expense.notes}
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
 
-        {/* Right Column - Receipt & Actions */}
+        {/* Right Column */}
         <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Receipt</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed rounded-lg bg-muted/30">
-                <Receipt className="h-10 w-10 text-muted-foreground mb-2" />
-                <p className="text-sm text-muted-foreground">No receipt uploaded</p>
+          {/* Receipt */}
+          <Card className="overflow-hidden">
+            <div className="p-4 border-b bg-muted/30">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Receipt className="h-4 w-4 text-muted-foreground" />
+                  <h3 className="font-semibold text-sm">Receipt</h3>
+                </div>
+                <Button variant="ghost" size="sm" className="h-8 px-2">
+                  <Download className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <CardContent className="p-4">
+              <div className="aspect-[4/3] rounded-lg border-2 border-dashed bg-muted/30 flex flex-col items-center justify-center gap-2 hover:bg-muted/50 transition-colors cursor-pointer">
+                <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+                  <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <p className="text-sm text-muted-foreground text-center px-4">
+                  No receipt uploaded
+                </p>
+                <Button variant="outline" size="sm" className="mt-2">
+                  Upload Receipt
+                </Button>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Timeline</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
+          {/* Timeline */}
+          <Card className="overflow-hidden">
+            <div className="p-4 border-b bg-muted/30">
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <h3 className="font-semibold text-sm">Activity Timeline</h3>
+              </div>
+            </div>
+            <CardContent className="p-4">
+              <div className="relative space-y-4">
+                {/* Created */}
                 <div className="flex gap-3">
-                  <div className="flex flex-col items-center">
-                    <div className="h-2 w-2 rounded-full bg-primary" />
-                    <div className="w-px h-full bg-border" />
+                  <div className="relative flex flex-col items-center">
+                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center z-10">
+                      <Receipt className="h-4 w-4 text-primary" />
+                    </div>
+                    {expense.status !== "pending" && (
+                      <div className="w-0.5 h-full bg-border absolute top-8" />
+                    )}
                   </div>
                   <div className="pb-4">
-                    <p className="text-sm font-medium">Expense Created</p>
-                    <p className="text-xs text-muted-foreground">{expense.date}</p>
+                    <p className="font-medium text-sm">Expense Submitted</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {new Date(expense.date).toLocaleDateString("en-IN", {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </p>
                   </div>
                 </div>
+
+                {/* Status */}
                 {expense.status !== "pending" && (
                   <div className="flex gap-3">
-                    <div className="flex flex-col items-center">
+                    <div className="relative flex flex-col items-center">
                       <div
-                        className={`h-2 w-2 rounded-full ${
-                          expense.status === "approved" ? "bg-success" : "bg-destructive"
-                        }`}
-                      />
+                        className={`h-8 w-8 rounded-full flex items-center justify-center z-10 ${statusConfig.bg}`}
+                      >
+                        <StatusIcon className={`h-4 w-4 ${statusConfig.color}`} />
+                      </div>
                     </div>
                     <div>
-                      <p className="text-sm font-medium capitalize">
-                        {expense.status}
+                      <p className="font-medium text-sm capitalize">
+                        {expense.status === "approved" ? "Approved" : "Rejected"}
                       </p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(expense.date).toLocaleDateString()}
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {new Date(expense.date).toLocaleDateString("en-IN", {
+                          weekday: "short",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {expense.status === "pending" && (
+                  <div className="flex gap-3">
+                    <div className="relative flex flex-col items-center">
+                      <div className="h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center z-10 border-2 border-dashed border-amber-300">
+                        <Clock className="h-4 w-4 text-amber-600" />
+                      </div>
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm text-amber-600">
+                        Awaiting Approval
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Under review
                       </p>
                     </div>
                   </div>
