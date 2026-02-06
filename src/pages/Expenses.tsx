@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Filter } from "lucide-react";
+import { Plus, Filter, Eye } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -156,8 +156,9 @@ export default function Expenses() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="sm">
-                      View
+                    <Button variant="ghost" size="sm" className="gap-2">
+                      <Eye className="h-4 w-4" />
+                      <span className="hidden sm:inline">View</span>
                     </Button>
                   </TableCell>
                 </TableRow>
