@@ -7,6 +7,7 @@ import { AppLayout, useRole } from "./components/Layout/AppLayout";
 import AdminDashboard from "./pages/AdminDashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import Expenses from "./pages/Expenses";
+import ExpenseDetails from "./pages/ExpenseDetails";
 import Requests from "./pages/Requests";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -29,6 +30,7 @@ const App = () => (
           <Route element={<AppLayout />}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/expenses" element={<Expenses />} />
+            <Route path="/expenses/:id" element={<ExpenseDetails />} />
             <Route path="/requests" element={<Requests />} />
             <Route path="/transactions" element={<div>Transactions Page</div>} />
             <Route path="/employees" element={<div>Employees Page</div>} />

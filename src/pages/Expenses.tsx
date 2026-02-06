@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +12,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ExpenseDetailsDialog } from "@/components/Expenses/ExpenseDetailsDialog";
 interface Expense {
   id: number;
   title: string;
@@ -77,13 +77,7 @@ const expenses: Expense[] = [
 
 export default function Expenses() {
   const [filter, setFilter] = useState("all");
-  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
-  const [detailsOpen, setDetailsOpen] = useState(false);
-
-  const handleViewExpense = (expense: Expense) => {
-    setSelectedExpense(expense);
-    setDetailsOpen(true);
-  };
+  const navigate = useNavigate();
 
   const filteredExpenses =
     filter === "all"
@@ -182,7 +176,7 @@ export default function Expenses() {
                       variant="ghost" 
                       size="sm" 
                       className="gap-2"
-                      onClick={() => handleViewExpense(expense)}
+                      onClick={() => navigate(`/expenses/${expense.id}`)}
                     >
                       <Eye className="h-4 w-4" />
                       <span className="hidden sm:inline">View</span>
@@ -194,12 +188,6 @@ export default function Expenses() {
           </Table>
         </CardContent>
       </Card>
-
-      <ExpenseDetailsDialog
-        expense={selectedExpense}
-        open={detailsOpen}
-        onOpenChange={setDetailsOpen}
-      />
     </div>
   );
 }
