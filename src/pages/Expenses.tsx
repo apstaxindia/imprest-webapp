@@ -11,8 +11,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ExpenseDetailsDialog } from "@/components/Expenses/ExpenseDetailsDialog";
+interface Expense {
+  id: number;
+  title: string;
+  amount: number;
+  category: string;
+  mode: string;
+  date: string;
+  status: string;
+  notes?: string;
+}
 
-const expenses = [
+const expenses: Expense[] = [
   {
     id: 1,
     title: "Travel to Client Site",
@@ -21,6 +32,7 @@ const expenses = [
     mode: "Cash",
     date: "2025-01-15",
     status: "approved",
+    notes: "Client meeting at their office location. Included cab fare and lunch.",
   },
   {
     id: 2,
@@ -30,6 +42,7 @@ const expenses = [
     mode: "UPI",
     date: "2025-01-14",
     status: "pending",
+    notes: "Purchased stationery items for the team.",
   },
   {
     id: 3,
@@ -39,6 +52,7 @@ const expenses = [
     mode: "Cash",
     date: "2025-01-12",
     status: "approved",
+    notes: "Monthly team lunch celebration.",
   },
   {
     id: 4,
@@ -48,6 +62,7 @@ const expenses = [
     mode: "Bank Transfer",
     date: "2025-01-10",
     status: "approved",
+    notes: "Annual subscription renewal for project management tool.",
   },
   {
     id: 5,
@@ -62,6 +77,13 @@ const expenses = [
 
 export default function Expenses() {
   const [filter, setFilter] = useState("all");
+  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+
+  const handleViewExpense = (expense: Expense) => {
+    setSelectedExpense(expense);
+    setDetailsOpen(true);
+  };
 
   const filteredExpenses =
     filter === "all"
@@ -156,7 +178,12 @@ export default function Expenses() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="sm" className="gap-2">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="gap-2"
+                      onClick={() => handleViewExpense(expense)}
+                    >
                       <Eye className="h-4 w-4" />
                       <span className="hidden sm:inline">View</span>
                     </Button>
@@ -167,6 +194,12 @@ export default function Expenses() {
           </Table>
         </CardContent>
       </Card>
+
+      <ExpenseDetailsDialog
+        expense={selectedExpense}
+        open={detailsOpen}
+        onOpenChange={setDetailsOpen}
+      />
     </div>
   );
 }
